@@ -1,4 +1,5 @@
-import { ImageSequence, ImageSequenceProps } from "./ImageSequence";
+import { ImageSequence } from "./ImageSequence";
+import type { ImageSequenceProps } from './ImageSequence';
 
 export default ImageSequence;
 

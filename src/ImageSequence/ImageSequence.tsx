@@ -1,5 +1,4 @@
 import {
-  cloneElement,
   HTMLAttributes,
   RefObject,
   useEffect,
@@ -7,8 +6,8 @@ import {
   useRef,
   useState
 } from "react";
-import { getCoordsByType, getScaledImageSize } from "./draw-utils";
-import { Position } from "./types";
+import {drawImageScaled} from "./draw-utils";
+import {ImageScale, Position} from "./types";
 
 export interface ImageSequenceProps {
   percent: number;
@@ -16,7 +15,7 @@ export interface ImageSequenceProps {
   position?: Position;
   className?: HTMLAttributes<HTMLDivElement>["className"];
   style?: HTMLAttributes<HTMLDivElement>["style"];
-  imageScale: "cover" | "contain";
+  imageScale?: ImageScale
 }
 
 const getFrame = (from: number, to: number, percent: number) => {
@@ -24,30 +23,9 @@ const getFrame = (from: number, to: number, percent: number) => {
   return Math.floor(delta * percent) + from;
 };
 
-function drawImageScaled(
-  img: HTMLImageElement,
-  ctx: CanvasRenderingContext2D,
-  position: Position,
-  imageScale: "cover" | "contain"
-) {
-  const { canvas } = ctx;
-  // Calculate the new dimensions of the image
-  let { width: newImgWidth, height: newImgHeight } = getScaledImageSize(
-    img,
-    ctx,
-    imageScale === "cover" ? (a, b) => a < b : (a, b) => a > b
-  );
 
-  // Calculate the position of the image in the center of the canvas
-  const { x, y } = getCoordsByType(canvas, newImgWidth, newImgHeight, position);
-
-  // Draw the image onto the canvas at the center
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, x, y, newImgWidth, newImgHeight);
-}
-
-function listener(
-  imageScale: ImageSequenceProps["imageScale"],
+function drawListener(
+  imageScale: ImageScale,
   position: Position,
   images: HTMLImageElement[],
   percent: number,
@@ -84,7 +62,7 @@ export function ImageSequence(props: ImageSequenceProps) {
       return;
     }
 
-    requestAnimationFrame(listener(imageScale, position, images, percent, ctx));
+    requestAnimationFrame(drawListener(imageScale, position, images, percent, ctx));
   }, [imageScale, percent, ctx, canvasSize]);
 
   useEffect(() => {

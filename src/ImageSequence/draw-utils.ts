@@ -1,4 +1,4 @@
-import { Position } from "./types";
+import {ImageScale, Position} from "./types";
 
 export function getScaledImageSize(
   img: HTMLImageElement,
@@ -59,4 +59,26 @@ export function getCoordsByType(
   const y = POSITIONS_MAP[posByY](canvas.height, imgHeight);
 
   return { x, y };
+}
+
+export function drawImageScaled(
+  img: HTMLImageElement,
+  ctx: CanvasRenderingContext2D,
+  position: Position,
+  imageScale: ImageScale
+) {
+  const { canvas } = ctx;
+  // Calculate the new dimensions of the image
+  let { width: newImgWidth, height: newImgHeight } = getScaledImageSize(
+    img,
+    ctx,
+    imageScale === "cover" ? (a, b) => a < b : (a, b) => a > b
+  );
+
+  // Calculate the position of the image in the center of the canvas
+  const { x, y } = getCoordsByType(canvas, newImgWidth, newImgHeight, position);
+
+  // Draw the image onto the canvas at the center
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, x, y, newImgWidth, newImgHeight);
 }

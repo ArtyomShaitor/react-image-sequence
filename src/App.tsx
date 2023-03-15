@@ -42,8 +42,6 @@ export default function App() {
   const [isLoading, images] = usePreloadAirpods();
   const [isDanceLoading, danceImages] = usePreloadDance();
 
-  const revertedImages = useMemo(() => [...images].reverse(), [images]);
-
   if (isLoading || isDanceLoading) {
     return <div>Loading ...</div>;
   }
@@ -75,29 +73,14 @@ export default function App() {
                   images={images}
                   percent={percent}
                   position="top"
+                  imageScale="contain"
                 />
               </div>
             </div>
           );
         }}
       </SmoothScroll>
-      <SmoothScroll duration={3000}>
-        {(percent) => {
-          return (
-            <div className="container white">
-              <div className="custom-canvas-container">
-                <ImageSequence
-                  images={revertedImages}
-                  percent={percent}
-                  position="top"
-                  className="custom-canvas"
-                />
-              </div>
-            </div>
-          );
-        }}
-      </SmoothScroll>
-      <SmoothScroll duration={20000}>
+      <SmoothScroll duration={15000}>
         {(percent) => {
           return (
             <div
@@ -108,7 +91,7 @@ export default function App() {
                 style={{ height: "100%" }}
                 images={danceImages}
                 percent={percent}
-                position="center"
+                position="top"
               />
             </div>
           );

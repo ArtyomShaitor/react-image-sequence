@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import {CSSProperties, HTMLAttributes, ReactNode, RefObject, useEffect, useMemo, useRef, useState} from "react";
 
 export interface SmoothScrollProps {
   duration: number;
@@ -9,16 +9,16 @@ export interface SmoothScrollProps {
 const fixedStyle = {
   position: "sticky",
   top: 0
-};
+} as CSSProperties;
 
 export function SmoothScroll(props: SmoothScrollProps) {
-  const containerRef = useRef(null);
+  const containerRef = useRef(null) as RefObject<HTMLDivElement>;
   const [percent, setPercent] = useState(0);
   const { children, offsetTop = 0 } = props;
 
   useEffect(() => {
     const listener = function () {
-      const { top, height } = containerRef.current.getBoundingClientRect();
+      const { top, height } = (containerRef.current as HTMLDivElement).getBoundingClientRect();
       const { clientHeight } = document.documentElement;
 
       requestAnimationFrame(() => {
@@ -34,7 +34,7 @@ export function SmoothScroll(props: SmoothScrollProps) {
     return () => document.removeEventListener("scroll", listener);
   }, []);
 
-  const containerStyle = useMemo(
+  const containerStyle = useMemo<CSSProperties>(
     () => ({
       height: `${props.duration}px`,
       position: "relative"
