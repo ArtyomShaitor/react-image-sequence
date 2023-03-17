@@ -1,4 +1,12 @@
-import {CSSProperties, HTMLAttributes, ReactNode, RefObject, useEffect, useMemo, useRef, useState} from "react";
+import {
+  CSSProperties,
+  ReactNode,
+  RefObject,
+  useEffect,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 export interface SmoothScrollProps {
   duration: number;
@@ -19,7 +27,7 @@ export function SmoothScroll(props: SmoothScrollProps) {
   useEffect(() => {
     const listener = function () {
       const { top, height } = (containerRef.current as HTMLDivElement).getBoundingClientRect();
-      const { clientHeight } = document.documentElement;
+      const clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
 
       requestAnimationFrame(() => {
         const raw = -(top - offsetTop) / (height + offsetTop - clientHeight);
