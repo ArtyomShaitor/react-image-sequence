@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import {CSSProperties, RefObject, useEffect, useRef, useState} from "react";
 import "./styles.css";
 import { getImageUrl, getDanceImageUrl } from "./utils";
-import { SmoothScroll } from "./SmoothScroll";
+import { SmoothScroll, Sticky } from "./SmoothScroll";
 import ImageSequence from "./ImageSequence";
 
 const usePreloadImages = (getUrl: any, maxCount: number) => {
@@ -38,9 +38,15 @@ const style = { backgroundImage: `url(${getImageUrl(0)}` };
 const usePreloadAirpods = () => usePreloadImages(getImageUrl, 64);
 const usePreloadDance = () => usePreloadImages(getDanceImageUrl, 215);
 
+const containerStyle = {
+  height: '300vh',
+} as CSSProperties;
+
 export default function App() {
   const [isLoading, images] = usePreloadAirpods();
   const [isDanceLoading, danceImages] = usePreloadDance();
+  const firstContainerRef = useRef(null) as RefObject<HTMLDivElement>;
+  const containerRef = useRef(null) as RefObject<HTMLDivElement>;
 
   if (isLoading || isDanceLoading) {
     return <div>Loading ...</div>;
@@ -52,7 +58,7 @@ export default function App() {
         <h1>Lol kek</h1>
         <h2>Start editing to see some magic happen!</h2>
       </div>
-      <SmoothScroll duration={3000}>
+      <SmoothScroll duration={3000} className="black" ref={firstContainerRef}>
         {(percent) => {
           const opacity1 = percent ** 3;
           const opacity2 = -((percent * 1.5) ** 3) + 1;
@@ -60,43 +66,36 @@ export default function App() {
           const transform = `scale(${1 + Math.min(opacity1, 1.2)})`;
 
           return (
-            <div className="black" style={{ position: "relative" }}>
-              <div className="container flex">
-                <h1 style={{ opacity: opacity1, transform }}>
-                  Hello CodeSandbox
-                </h1>
-                <h2 style={{ opacity: opacity2 }}>
-                  Start editing to see some magic happen!
-                </h2>
-                <ImageSequence
-                  className="custom-sequence"
-                  images={images}
-                  percent={percent}
-                  position="top"
-                  imageScale="contain"
-                />
-              </div>
-            </div>
+            <>
+              <Sticky>
+                <div className="container flex">
+                  <ImageSequence
+                    targetRef={firstContainerRef}
+                    images={images}
+                    position="top"
+                    imageScale="contain"
+                    isFullPage
+                  />
+                  <h1 style={{ opacity: opacity1, transform }}>
+                    Hello CodeSandbox
+                  </h1>
+                  <h2 style={{ opacity: opacity2 }}>
+                    Start editing to see some magic happen!
+                  </h2>
+                </div>
+              </Sticky>
+            </>
           );
         }}
       </SmoothScroll>
-      <SmoothScroll duration={15000}>
-        {(percent) => {
-          return (
-            <div
-              className="container white no-p"
-              style={{ position: "relative" }}
-            >
-              <ImageSequence
-                style={{ height: "100%" }}
-                images={danceImages}
-                percent={percent}
-                position="top"
-              />
-            </div>
-          );
-        }}
-      </SmoothScroll>
+      <div ref={containerRef} className="container white no-p" style={containerStyle}>
+        <ImageSequence
+          targetRef={containerRef}
+          images={danceImages}
+          isFullPage
+          isSticky
+        />
+      </div>
       <div className="container black" style={style}>
         <h1>Lol kek</h1>
         <h2>Start editing to see some magic happen!</h2>

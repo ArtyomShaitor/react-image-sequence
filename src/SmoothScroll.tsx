@@ -1,17 +1,25 @@
 import {
-  CSSProperties,
+  CSSProperties, HTMLAttributes,
   ReactNode,
   RefObject,
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
+  forwardRef, useCallback,
 } from "react";
 
 export interface SmoothScrollProps {
   duration: number;
   offsetTop?: number;
   children: (percent: number) => ReactNode;
+  className?: HTMLAttributes<HTMLDivElement>["className"];
+}
+
+export interface StickyProps {
+  children: ReactNode;
+  className?: HTMLAttributes<HTMLDivElement>["className"];
+  style?: HTMLAttributes<HTMLDivElement>["style"];
 }
 
 const fixedStyle = {
@@ -19,10 +27,23 @@ const fixedStyle = {
   top: 0
 } as CSSProperties;
 
-export function SmoothScroll(props: SmoothScrollProps) {
+const useMultipleRefs = (...refs: any[]) => {
+  return useCallback(
+    (node: any) => {
+      refs.forEach(ref => {
+        ref.current = node
+      })
+    },
+    []
+  );
+}
+
+export const SmoothScroll = forwardRef((props: SmoothScrollProps, ref) => {
   const containerRef = useRef(null) as RefObject<HTMLDivElement>;
   const [percent, setPercent] = useState(0);
-  const { children, offsetTop = 0 } = props;
+  const { children, offsetTop = 0, className = '' } = props;
+
+  const multipleRef = useMultipleRefs(ref, containerRef);
 
   useEffect(() => {
     const listener = function () {
@@ -51,8 +72,21 @@ export function SmoothScroll(props: SmoothScrollProps) {
   );
 
   return (
-    <div ref={containerRef} style={containerStyle}>
-      <div style={fixedStyle}>{children(percent)}</div>
+    <div ref={multipleRef} style={containerStyle} className={className}>
+      {children(percent)}
     </div>
   );
-}
+});
+
+export const Sticky = forwardRef(({ children, className = '', style: _style }: StickyProps, ref) => {
+  const style = useMemo(
+    () => ({
+      ...fixedStyle,
+      ..._style,
+    }),
+    [_style]
+  );
+
+  // @ts-ignore
+  return (<div ref={ref} className={`sticky ${className}`} style={style}>{children}</div>)
+});

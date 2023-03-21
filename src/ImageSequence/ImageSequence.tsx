@@ -1,6 +1,8 @@
 import {
   HTMLAttributes,
   RefObject,
+  memo,
+  useCallback,
   useEffect,
   useMemo,
   useRef,
@@ -8,14 +10,42 @@ import {
 } from "react";
 import {drawImageScaled} from "./draw-utils";
 import {ImageScale, Position} from "./types";
+import CSS from "./ImageSequence.module.css";
 
-export interface ImageSequenceProps {
-  percent: number;
+type StyleProps = Partial<{
+  isFullPage: boolean;
+  isSticky: boolean;
+}>;
+
+type CanvasSize = {
+  w: number;
+  h: number;
+}
+
+export interface ImageSequenceProps extends StyleProps {
+  targetRef: RefObject<HTMLElement>,
   images: HTMLImageElement[];
   position?: Position;
   className?: HTMLAttributes<HTMLDivElement>["className"];
   style?: HTMLAttributes<HTMLDivElement>["style"];
-  imageScale?: ImageScale
+  imageScale?: ImageScale;
+}
+
+const CLASSNAMES_MAP: Record<keyof StyleProps, string> = {
+  isFullPage: CSS.fullPage,
+  isSticky: CSS.sticky,
+}
+
+const classNames = (baseClassName: string = '', props: StyleProps, additionalCN: string = '') => {
+  let cn = Object.entries<boolean>(props).reduce((res, [prop, value]) => (
+    !!value ? `${res} ${CLASSNAMES_MAP[prop as keyof StyleProps]}` : res
+  ), baseClassName);
+
+  if (additionalCN) {
+    cn += ` ${additionalCN}`;
+  }
+
+  return cn;
 }
 
 const getFrame = (from: number, to: number, percent: number) => {
@@ -23,79 +53,130 @@ const getFrame = (from: number, to: number, percent: number) => {
   return Math.floor(delta * percent) + from;
 };
 
+const fromZero2One = (value: number) => Math.max(0, Math.min(value, 1));
+const getPercentageOfScrollY = (element: HTMLElement) => {
+  const elementHeight = element.offsetHeight;
+  const scrollPosition = (window.pageYOffset || window.scrollY) + window.innerHeight;
+  const elementOffsetTop = element.offsetTop;
+  const distance = scrollPosition - elementOffsetTop;
+  return fromZero2One(distance / elementHeight);
+}
 
-function drawListener(
+const drawListener = (
   imageScale: ImageScale,
   position: Position,
   images: HTMLImageElement[],
   percent: number,
   ctx: CanvasRenderingContext2D
-) {
-  return function () {
-    const frame = getFrame(0, images.length - 1, percent);
-    drawImageScaled(images[frame], ctx, position, imageScale);
-  };
+) => () => {
+  const frame = getFrame(0, images.length - 1, percent);
+  drawImageScaled(images[frame], ctx, position, imageScale);
 }
 
-export function ImageSequence(props: ImageSequenceProps) {
+const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
   const {
     imageScale = "cover",
-    percent,
+    targetRef,
     images,
     position = "center",
     className = "",
-    style
+    style,
+    isFullPage,
+    isSticky,
   } = props;
+
   const containerRef = useRef(null) as RefObject<HTMLDivElement>;
   const canvasRef = useRef(null) as RefObject<HTMLCanvasElement>;
-  const [canvasSize, setCanvasSize] = useState<{ w: number; h: number }>({
-    w: 0,
-    h: 0
-  });
+  const [canvasSize, setCanvasSize] = useState<CanvasSize>({ w: 0, h: 0 });
 
+  const containerClassName = useMemo(
+    () => classNames(CSS.imageSequenceContainer, { isFullPage, isSticky }, className),
+    [isFullPage, isSticky, className]
+  );
+
+  // Get context
   const ctx = useMemo(() => {
     return canvasRef.current?.getContext("2d");
   }, [canvasRef.current]);
 
-  useEffect(() => {
-    if (!ctx) {
-      return;
-    }
-
-    requestAnimationFrame(drawListener(imageScale, position, images, percent, ctx));
-  }, [imageScale, percent, ctx, canvasSize]);
-
-  useEffect(() => {
-    const {
-      width,
-      height
-    } = (containerRef.current as HTMLElement).getBoundingClientRect();
-    setCanvasSize({ w: width, h: height });
-  }, []);
-
-  useEffect(() => {
-    const resizeListener = function () {
+  // Function for updating canvas size
+  const updateCanvasSize = useCallback(
+    () => {
       const {
         width,
         height
       } = (containerRef.current as HTMLElement).getBoundingClientRect();
       setCanvasSize({ w: width, h: height });
+    },
+    []
+  );
+
+  // Draw function
+  const draw = useCallback(
+    () => {
+      if (!ctx) {
+        return;
+      }
+
+      const percent = getPercentageOfScrollY(targetRef.current as HTMLElement);
+      requestAnimationFrame(drawListener(imageScale, position, images, percent, ctx));
+    },
+    [imageScale, position, images, ctx]
+  )
+
+  // Add scroll event and calculate current frame
+  useEffect(
+    () => {
+      window.addEventListener("scroll", draw);
+
+      return () => window.removeEventListener("scroll", draw);
+    },
+    [draw]
+  );
+
+  // Change targetRef position to `relative` in case if it's `static`
+  useEffect(
+    () => {
+      const position = window.getComputedStyle(targetRef.current as HTMLElement).getPropertyValue("position")
+      if (position === 'static') {
+        const previousPosition = (targetRef.current as HTMLElement).style.position;
+        (targetRef.current as HTMLElement).style.position = 'relative';
+
+        return () => (targetRef.current as HTMLElement).style.position = previousPosition;
+      }
+
+      return () => {}
+    },
+    []
+  )
+
+  // Set correct canvas size on component render
+  useEffect(() => {
+    updateCanvasSize();
+    draw();
+  }, []);
+
+  // Update canvas size on window resize
+  useEffect(() => {
+    const resizeListener = function () {
+      updateCanvasSize();
+      draw();
     };
 
     window.addEventListener("resize", resizeListener);
 
     return () => window.removeEventListener("resize", resizeListener);
-  }, []);
-
-  const { w, h } = canvasSize;
+  }, [draw]);
 
   return (
     <div
-      ref={containerRef}
       style={style}
-      className={`image-sequence-container ${className}`}
+      ref={containerRef}
+      className={containerClassName}
     >
-      <canvas width={w} height={h} ref={canvasRef} />
+      <canvas width={canvasSize.w} height={canvasSize.h} ref={canvasRef} />
     </div>
   );
-}
+});
+
+export { ImageSequence };
