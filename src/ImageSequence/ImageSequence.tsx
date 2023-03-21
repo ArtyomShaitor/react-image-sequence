@@ -11,16 +11,18 @@ import {
 import {drawImageScaled} from "./draw-utils";
 import {ImageScale, Position} from "./types";
 import CSS from "./ImageSequence.module.css";
-
-type StyleProps = Partial<{
-  isFullPage: boolean;
-  isSticky: boolean;
-}>;
+import {classNames} from "./utils";
 
 type CanvasSize = {
   w: number;
   h: number;
 }
+
+interface StyleProps {
+  isFullPage?: boolean;
+  isSticky?: boolean;
+  isLol?: boolean;
+};
 
 export interface ImageSequenceProps extends StyleProps {
   targetRef: RefObject<HTMLElement>,
@@ -31,22 +33,10 @@ export interface ImageSequenceProps extends StyleProps {
   imageScale?: ImageScale;
 }
 
-const CLASSNAMES_MAP: Record<keyof StyleProps, string> = {
+const classes = classNames(CSS.imageSequenceContainer, {
   isFullPage: CSS.fullPage,
   isSticky: CSS.sticky,
-}
-
-const classNames = (baseClassName: string = '', props: StyleProps, additionalCN: string = '') => {
-  let cn = Object.entries<boolean>(props).reduce((res, [prop, value]) => (
-    !!value ? `${res} ${CLASSNAMES_MAP[prop as keyof StyleProps]}` : res
-  ), baseClassName);
-
-  if (additionalCN) {
-    cn += ` ${additionalCN}`;
-  }
-
-  return cn;
-}
+});
 
 const getFrame = (from: number, to: number, percent: number) => {
   const delta = to - from;
@@ -90,7 +80,7 @@ const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
   const [canvasSize, setCanvasSize] = useState<CanvasSize>({ w: 0, h: 0 });
 
   const containerClassName = useMemo(
-    () => classNames(CSS.imageSequenceContainer, { isFullPage, isSticky }, className),
+    () => classes({ isFullPage, isSticky }, className),
     [isFullPage, isSticky, className]
   );
 
@@ -166,7 +156,7 @@ const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
     window.addEventListener("resize", resizeListener);
 
     return () => window.removeEventListener("resize", resizeListener);
-  }, [draw]);
+  }, [draw, updateCanvasSize]);
 
   return (
     <div
