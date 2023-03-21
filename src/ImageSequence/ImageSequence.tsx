@@ -12,6 +12,7 @@ import {drawImageScaled} from "./draw-utils";
 import {ImageScale, Position} from "./types";
 import CSS from "./ImageSequence.module.css";
 import {classNames} from "./utils";
+import {useEventListener} from "./hooks";
 
 type CanvasSize = {
   w: number;
@@ -22,7 +23,7 @@ interface StyleProps {
   isFullPage?: boolean;
   isSticky?: boolean;
   isLol?: boolean;
-};
+}
 
 export interface ImageSequenceProps extends StyleProps {
   targetRef: RefObject<HTMLElement>,
@@ -112,16 +113,6 @@ const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
       requestAnimationFrame(drawListener(imageScale, position, images, percent, ctx));
     },
     [imageScale, position, images, ctx]
-  )
-
-  // Add scroll event and calculate current frame
-  useEffect(
-    () => {
-      window.addEventListener("scroll", draw);
-
-      return () => window.removeEventListener("scroll", draw);
-    },
-    [draw]
   );
 
   // Change targetRef position to `relative` in case if it's `static`
@@ -146,17 +137,14 @@ const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
     draw();
   }, []);
 
+  // Add scroll event and calculate current frame
+  useEventListener('scroll', draw);
+
   // Update canvas size on window resize
-  useEffect(() => {
-    const resizeListener = function () {
-      updateCanvasSize();
-      draw();
-    };
-
-    window.addEventListener("resize", resizeListener);
-
-    return () => window.removeEventListener("resize", resizeListener);
-  }, [draw, updateCanvasSize]);
+  useEventListener('resize', function() {
+    updateCanvasSize();
+    draw();
+  });
 
   return (
     <div

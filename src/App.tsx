@@ -1,55 +1,31 @@
-import {CSSProperties, RefObject, useEffect, useRef, useState} from "react";
+import {CSSProperties, RefObject, useRef } from "react";
 import "./styles.css";
 import { getImageUrl, getDanceImageUrl } from "./utils";
 import { SmoothScroll, Sticky } from "./SmoothScroll";
 import ImageSequence from "./ImageSequence";
+import {usePreloadImages} from "./ImageSequence/hooks";
 
-const usePreloadImages = (getUrl: any, maxCount: number) => {
-  const [isLoading, setLoading] = useState(true);
-  const [images, setImages] = useState<HTMLImageElement[]>([]);
-
-  useEffect(() => {
-    const images = Array.from({ length: maxCount + 1 }).map((_, index) => {
-      const image = new Image();
-      image.src = getUrl(index);
-
-      return image;
-    });
-
-    setImages(images);
-
-    const requests = images.map(
-      (image) =>
-        new Promise((resolve) => {
-          image.onload = function () {
-            resolve(image);
-          };
-        })
-    );
-
-    Promise.all(requests).finally(() => setLoading(false));
-  }, []);
-
-  return [isLoading, images] as [boolean, HTMLImageElement[]];
-};
 
 const style = { backgroundImage: `url(${getImageUrl(0)}` };
 
-const usePreloadAirpods = () => usePreloadImages(getImageUrl, 64);
-const usePreloadDance = () => usePreloadImages(getDanceImageUrl, 215);
+const usePreloadAirpods = () => usePreloadImages(getImageUrl, 0, 64);
+const usePreloadDance = () => usePreloadImages(getDanceImageUrl, 0, 215);
 
 const containerStyle = {
   height: '300vh',
 } as CSSProperties;
 
 export default function App() {
-  const [isLoading, images] = usePreloadAirpods();
-  const [isDanceLoading, danceImages] = usePreloadDance();
+  const { isLoading, images } = usePreloadAirpods();
+  const {
+    isLoading: isDanceLoading,
+    images: danceImages
+  } = usePreloadDance();
   const firstContainerRef = useRef(null) as RefObject<HTMLDivElement>;
   const containerRef = useRef(null) as RefObject<HTMLDivElement>;
 
   if (isLoading || isDanceLoading) {
-    return <div>Loading ...</div>;
+    return <div className="container white">Loading ...</div>;
   }
 
   return (
