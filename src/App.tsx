@@ -1,18 +1,21 @@
 import {CSSProperties, RefObject, useRef } from "react";
 import "./styles.css";
-import { getImageUrl, getDanceImageUrl } from "./utils";
+import {getImageUrl, getDanceImageUrl, getDonutImageUrl} from "./utils";
 import { SmoothScroll, Sticky } from "./SmoothScroll";
-import ImageSequence from "./ImageSequence";
+import ImageSequence, { scrollDetectors } from "./ImageSequence";
 import {usePreloadImages} from "./ImageSequence/hooks";
 
 
 const style = { backgroundImage: `url(${getImageUrl(0)}` };
 
+const scrollingDetector = scrollDetectors.defaultIntersectViewport;
+
 const usePreloadAirpods = () => usePreloadImages(getImageUrl, 0, 64);
 const usePreloadDance = () => usePreloadImages(getDanceImageUrl, 0, 215);
+const usePreloadDonut = () => usePreloadImages(getDonutImageUrl, 1, 124);
 
 const containerStyle = {
-  height: '300vh',
+  height: '250vh',
 } as CSSProperties;
 
 export default function App() {
@@ -21,15 +24,30 @@ export default function App() {
     isLoading: isDanceLoading,
     images: danceImages
   } = usePreloadDance();
+
+  const {
+    isLoading: isDonutLoading,
+    images: donutImages,
+  } = usePreloadDonut();
+
   const firstContainerRef = useRef(null) as RefObject<HTMLDivElement>;
   const containerRef = useRef(null) as RefObject<HTMLDivElement>;
+  const containerRef2 = useRef(null) as RefObject<HTMLDivElement>;
 
-  if (isLoading || isDanceLoading) {
+  if (isLoading || isDanceLoading || isDonutLoading) {
     return <div className="container white">Loading ...</div>;
   }
 
   return (
     <>
+      <div ref={containerRef2} className="container orange no-p" style={containerStyle}>
+        <ImageSequence
+          targetRef={containerRef2}
+          images={donutImages}
+          isFullPage
+          isSticky
+        />
+      </div>
       <div className="container white" style={style}>
         <h1>Lol kek</h1>
         <h2>Start editing to see some magic happen!</h2>
@@ -70,6 +88,7 @@ export default function App() {
           images={danceImages}
           isFullPage
           isSticky
+          scrollingDetector={scrollingDetector}
         />
       </div>
       <div className="container black" style={style}>

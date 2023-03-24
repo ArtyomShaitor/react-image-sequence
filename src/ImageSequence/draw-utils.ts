@@ -29,7 +29,7 @@ export function getScaledImageSize(
 
 type CoordsGetter = (cD: number, iD: number) => number;
 
-const startCoord: CoordsGetter = (cD, iD) => 0;
+const startCoord: CoordsGetter = () => 0;
 const middleCoord: CoordsGetter = (cD, iD) => (cD - iD) / 2;
 const endCoord: CoordsGetter = (cD, iD) => cD - iD;
 
@@ -41,7 +41,7 @@ const POSITIONS_MAP: Record<string, CoordsGetter> = {
   bottom: endCoord
 };
 
-export function getCoordsByType(
+export function getCoordsByPosition(
   canvas: HTMLCanvasElement,
   imgWidth: number,
   imgHeight: number,
@@ -75,8 +75,8 @@ export function drawImageScaled(
     imageScale === "cover" ? (a, b) => a < b : (a, b) => a > b
   );
 
-  // Calculate the position of the image in the center of the canvas
-  const { x, y } = getCoordsByType(canvas, newImgWidth, newImgHeight, position);
+  // Calculate the coords of the image by the provided position
+  const { x, y } = getCoordsByPosition(canvas, newImgWidth, newImgHeight, position);
 
   // Draw the image onto the canvas at the center
   ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -23,6 +23,10 @@ html {
   font-family: sans-serif;
 }
 
+.half {
+  height: 50vh;
+}
+
 .no-p {
   padding: 0;
 }
@@ -30,6 +34,13 @@ html {
 .white {
   background-color: white;
   color: black;
+}
+
+.orange {
+  /*background-color: #e58648;*/
+  background: rgb(231,192,155);
+  background: radial-gradient(circle, rgba(231,192,155,1) 0%, rgba(241,169,100,1) 80%, rgba(249,137,31,1) 100%);
+  color: white;
 }
 
 .black {
