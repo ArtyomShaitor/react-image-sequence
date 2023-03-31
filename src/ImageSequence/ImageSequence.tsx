@@ -60,7 +60,6 @@ const drawListener = (
 }
 
 const ImageSequence = memo(function ImageSequence(props: ImageSequenceProps) {
-  console.log('ImageSequence render');
   const {
     targetRef,
     images,
