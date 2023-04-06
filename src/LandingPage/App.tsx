@@ -1,12 +1,19 @@
-import {CSSProperties, forwardRef, RefObject, useImperativeHandle, useRef} from "react";
+import {
+  CSSProperties,
+  forwardRef,
+  RefObject,
+  useImperativeHandle,
+  useRef,
+  useState
+} from "react";
 import {ScrollTrigger, Timeline, Tween} from "react-gsap";
 import {getDonutImageUrl} from './utils';
-import ImageSequence from '../ImageSequence';
-import {usePreloadImages} from '../ImageSequence/hooks';
+import ImageSequence, { usePreloadImages } from '../ImageSequence';
 import {Headline, HeroHeadline, Strong, Text, textDefaults} from "./Components/Text";
-import {BackgroundScrollContainer, Container, Div, Flex, HeroBlock} from "./Components/Layout";
+import {BackgroundScrollContainer, Container, Div, Flex, Grid, HeroBlock} from "./Components/Layout";
 import {Badge} from "./Components/Badge";
 import {Step} from "./Components/Step";
+import {CodeExample} from "./Components/CodeExample";
 
 
 const usePreloadDonut = () => usePreloadImages(getDonutImageUrl, 1, 124);
@@ -22,7 +29,7 @@ const containerStyle = {
   position: 'relative',
 } as CSSProperties;
 
-const WowBlock = forwardRef((props, ref) => {
+const WowBlockTarget = forwardRef((props: { step: number }, ref) => {
   const wowTitle = useRef(null);
   const wowText = useRef(null);
   const wowExample = useRef(null);
@@ -30,6 +37,8 @@ const WowBlock = forwardRef((props, ref) => {
   const wowStep2 = useRef(null);
   const wowStep3 = useRef(null);
   const wowTrigger = useRef(null);
+
+  const { step } = props;
 
   useImperativeHandle(ref, () => ({
     wowTitle,
@@ -53,9 +62,9 @@ const WowBlock = forwardRef((props, ref) => {
         Wow, right?
       </Headline>
       <Div paddingTop="6.5rem" />
-      <Flex w="100%" dir="row" position="relative">
-        <Flex grow={1} basis={0} paddingRight="110px">
-          <Flex w="480px">
+      <Grid templateColumns="1fr 1fr" gap="60px">
+        <Div>
+          <Flex maxW={480}>
             <Text
               ref={wowText}
               lineHeight={textDefaults.lineHeight.text}
@@ -71,8 +80,9 @@ const WowBlock = forwardRef((props, ref) => {
                 ref={wowStep1}
                 step={1}
                 stepColor="#FFB2ED"
-                title="Preload the images"
+                title="Preload images"
                 body="You can do it in a way you want. If you don’t care use the `usePreloadImages` hook from the package"
+                isActive={step === 1}
               />
               <Step
                 ref={wowStep2}
@@ -80,6 +90,7 @@ const WowBlock = forwardRef((props, ref) => {
                 stepColor="#B2D1FF"
                 title="Set up the container"
                 body="Use a tall div container for scrolling and let the library handle animation frames based on scroll percentage"
+                isActive={step === 2}
               />
               <Step
                 ref={wowStep3}
@@ -87,25 +98,61 @@ const WowBlock = forwardRef((props, ref) => {
                 stepColor="#B2FFDF"
                 title="> npm start"
                 body="Yeah, it’s actually only 2 steps."
+                isActive={step === 3}
               />
             </Flex>
           </Flex>
-        </Flex>
-        <Flex
+        </Div>
+        <Div
           ref={wowExample}
-          grow={1}
-          basis={0}
-          paddingLeft="110px"
-          h="100%"
+          position="relative"
         >
-          <Div bgColor="#1A1A1A" borderRadius="10px" h="430px" maxW="480px" w="100%" overflow="hidden">
-            <Div bgColor="#262626" w="100%" h="40px" />
-          </Div>
-        </Flex>
-      </Flex>
+          <CodeExample step={step} />
+        </Div>
+      </Grid>
     </>
   )
 });
+
+const WowBlock = () => {
+  const [step, setStep] = useState(1);
+
+  return (
+    <ScrollTrigger
+      trigger="#wow-block-trigger"
+      start="300px top"
+      end="+=9500px"
+      scrub={0.2}
+    >
+      <Timeline target={<WowBlockTarget step={step}/>}>
+        <Tween
+          from={{
+            opacity: 1,
+            xPercent: -50,
+            yPercent: -50,
+            left:"50%",
+            top:"50%",
+            transformOrigin: "center",
+            position: 'absolute',
+            scale: 2,
+            delay: 0
+          }}
+          duration={2}
+          target="wowTitle"
+        />
+        <Tween from={{ opacity: 0, delay: 0, y: '+=15px' }} target="wowText" duration={2} />
+        <Tween from={{ opacity: 0, delay: 0, y: '+=15px' }} target="wowExample" position="-=2"/>
+        {/* @ts-ignore */}
+        <Tween from={{ opacity: 0, delay: 1, y: '+=15px' }} target="wowStep1" onStart={() => setStep(1)}/>
+        {/* @ts-ignore */}
+        <Tween from={{ opacity: 0, delay: 10, y: '+=15px' }} target="wowStep2" onStart={() => setStep(2)}/>
+        {/* @ts-ignore */}
+        <Tween from={{ opacity: 0, delay: 10, y: '+=15px' }} target="wowStep3" onStart={() => setStep(3)}/>
+        <Tween from={{ delay: 1 }} target="wowStep3" onComplete={() => setStep(0)}/>
+      </Timeline>
+    </ScrollTrigger>
+  );
+}
 
 export default function App() {
   const {
@@ -115,7 +162,6 @@ export default function App() {
 
   const containerRef2 = useRef(null) as RefObject<HTMLDivElement>;
   const heroBlockRef = useRef() as RefObject<HTMLDivElement>;
-  const wowBlockRef = useRef() as RefObject<HTMLDivElement>;
 
   if (isDonutLoading) {
     return <div className="container white">Loading ...</div>;
@@ -179,35 +225,7 @@ export default function App() {
             h="100vh"
             top={0}
           >
-            <ScrollTrigger
-              trigger="#wow-block-trigger"
-              start="300px top"
-              end="+=9500px"
-              scrub={0.2}
-            >
-              <Timeline target={<WowBlock />}>
-                <Tween
-                  from={{
-                    opacity: 1,
-                    xPercent: -50,
-                    yPercent: -50,
-                    left:"50%",
-                    top:"50%",
-                    transformOrigin: "center",
-                    position: 'absolute',
-                    scale: 2,
-                    delay: 0
-                  }}
-                  duration={2}
-                  target="wowTitle"
-                />
-                <Tween from={{ opacity: 0, delay: 0, y: '+=15px' }} target="wowText" duration={2} />
-                <Tween from={{ opacity: 0, delay: 0, y: '+=15px' }} target="wowExample" position="-=2"/>
-                <Tween from={{ opacity: 0, delay: 1, y: '+=15px' }} target="wowStep1"/>
-                <Tween from={{ opacity: 0, delay: 10, y: '+=15px' }} target="wowStep2"/>
-                <Tween from={{ opacity: 0, delay: 10, y: '+=15px' }} target="wowStep3"/>
-              </Timeline>
-            </ScrollTrigger>
+            <WowBlock />
           </Container>
         </Div>
       </BackgroundScrollContainer>

@@ -43,6 +43,21 @@ export const Flex = styled.div<WithBaseComponent<FlexProps>>`
   ${baseComponentStyles};
 `;
 
+type GridProps = {
+  templateColumns?: CSSProperties['gridTemplateColumns'],
+  templateRows?: CSSProperties['gridTemplateRows'],
+  gap?: CSSProperties['gridGap'],
+}
+export const Grid = styled.div<WithBaseComponent<GridProps>>`
+  display: grid;
+  
+  grid-template-columns: ${_ => _.templateColumns};
+  grid-template-rows: ${_ => _.templateRows};
+  grid-gap: ${_ => _.gap};
+
+  ${baseComponentStyles};
+`;
+
 export const Container = styled.div<WithBaseComponent<{}>>`
   max-width: 1220px;
   width: 100%;

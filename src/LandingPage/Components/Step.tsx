@@ -8,7 +8,9 @@ interface StepProps {
   stepColor: CSSProperties['color'],
   title: string,
   body?: string,
-};
+  isActive?: boolean,
+  onClick?: (...args: any[]) => any,
+}
 
 function hexToHSL(H: string) {
   // Convert hex to RGB first
@@ -29,9 +31,9 @@ function hexToHSL(H: string) {
   let cmin = Math.min(r,g,b),
     cmax = Math.max(r,g,b),
     delta = cmax - cmin,
-    h = 0,
-    s = 0,
-    l = 0;
+    h,
+    s,
+    l;
 
   if (delta == 0)
     h = 0;
@@ -97,7 +99,7 @@ function HSLToHex(h: any, s: any, l: any) {
 }
 
 
-export const Step = forwardRef(({ title, step, body, stepColor }: StepProps, ref) => {
+export const Step = forwardRef(({ title, step, body, stepColor, onClick, isActive }: StepProps, ref) => {
   const darkerColor = useMemo(
     () => {
       const { h } = hexToHSL(stepColor as string);
@@ -110,7 +112,9 @@ export const Step = forwardRef(({ title, step, body, stepColor }: StepProps, ref
     <Flex
       // @ts-ignore
       ref={ref}
-      bgColor="#1A1A1A"
+      onClick={onClick}
+      transition="background-color 0.3s ease"
+      bgColor={isActive ? '#313131': '#1A1A1A'}
       borderRadius="10px"
       padding="15px 25px 15px 20px"
       dir="row"

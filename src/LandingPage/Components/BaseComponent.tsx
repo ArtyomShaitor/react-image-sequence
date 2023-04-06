@@ -18,6 +18,8 @@ interface BaseComponentProps {
   bottom?: CSSProperties['bottom'],
   left?: CSSProperties['left'],
   right?: CSSProperties['right'],
+  display?: CSSProperties['display'],
+  transition?: CSSProperties['transition'],
   position?: CSSProperties['position'],
   overflow?: CSSProperties['overflow'],
   opacity?: CSSProperties['opacity'],
@@ -54,6 +56,10 @@ const propMap = (cb: (props: BaseComponentProps) => any) => (props: BaseComponen
     return PROPS_MAP[value];
   }
 
+  if (typeof value === 'number') {
+    return `${value}px`
+  }
+
   return value;
 }
 
@@ -61,6 +67,10 @@ export type WithBaseComponent<ComponentType> = BaseComponentProps & ComponentTyp
 
 export const baseComponentStyles = css<BaseComponentProps>`
   background-color: ${_ => _.bgColor || _.backgroundColor};
+
+  display: ${propMap(_ => _.display)};
+
+  transition: ${propMap(_ => _.transition)};
   
   position: ${propMap(_ => _.position)};
   overflow: ${propMap(_ => _.overflow)};
