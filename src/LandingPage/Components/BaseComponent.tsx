@@ -19,6 +19,7 @@ interface BaseComponentProps {
   left?: CSSProperties['left'],
   right?: CSSProperties['right'],
   position?: CSSProperties['position'],
+  overflow?: CSSProperties['overflow'],
   opacity?: CSSProperties['opacity'],
   zIndex?: CSSProperties['zIndex'],
   width?: CSSProperties['width'],
@@ -34,9 +35,26 @@ interface BaseComponentProps {
   minHeight?: CSSProperties['minHeight'],
   minH?: CSSProperties['minHeight'],
   border?: CSSProperties['border'],
+  borderTop?: CSSProperties['borderTop'],
+  borderBottom?: CSSProperties['borderBottom'],
+  borderLeft?: CSSProperties['borderLeft'],
+  borderRight?: CSSProperties['borderRight'],
   borderRadius?: CSSProperties['borderRadius'],
   backgroundColor?: CSSProperties['backgroundColor'],
   bgColor?: CSSProperties['backgroundColor'],
+}
+
+const PROPS_MAP = {
+  full: '100%'
+} as Record<string, string>;
+
+const propMap = (cb: (props: BaseComponentProps) => any) => (props: BaseComponentProps): string | undefined => {
+  const value = cb(props);
+  if (value !== undefined && PROPS_MAP.hasOwnProperty(value)) {
+    return PROPS_MAP[value];
+  }
+
+  return value;
 }
 
 export type WithBaseComponent<ComponentType> = BaseComponentProps & ComponentType;
@@ -44,35 +62,40 @@ export type WithBaseComponent<ComponentType> = BaseComponentProps & ComponentTyp
 export const baseComponentStyles = css<BaseComponentProps>`
   background-color: ${_ => _.bgColor || _.backgroundColor};
   
-  position: ${_ => _.position};
-  opacity: ${_ => _.opacity};
-  z-index: ${_ => _.zIndex};
+  position: ${propMap(_ => _.position)};
+  overflow: ${propMap(_ => _.overflow)};
+  opacity: ${propMap(_ => _.opacity)};
+  z-index: ${propMap(_ => _.zIndex)};
   
-  width: ${_ => _.w || _.width};
-  height: ${_ => _.h || _.height};
-  min-width: ${_ => _.minW || _.minWidth};
-  min-height: ${_ => _.minH || _.minHeight};
-  max-width: ${_ => _.maxW || _.maxWidth};
-  max-height: ${_ => _.maxH || _.maxHeight};
+  width: ${propMap(_ => _.w || _.width)};
+  height: ${propMap(_ => _.h || _.height)};
+  min-width: ${propMap(_ => _.minW || _.minWidth)};
+  min-height: ${propMap(_ => _.minH || _.minHeight)};
+  max-width: ${propMap(_ => _.maxW || _.maxWidth)};
+  max-height: ${propMap(_ => _.maxH || _.maxHeight)};
   
-  border: ${_ => _.border};
-  border-radius: ${_ => _.borderRadius};
+  border: ${propMap(_ => _.border)};
+  border-top: ${propMap(_ => _.borderTop)};
+  border-bottom: ${propMap(_ => _.borderBottom)};
+  border-left: ${propMap(_ => _.borderLeft)};
+  border-right: ${propMap(_ => _.borderRight)};
+  border-radius: ${propMap(_ => _.borderRadius)};
   
-  margin: ${_ => _.margin};
-  margin-top: ${_ => _.marginTop};
-  margin-bottom: ${_ => _.marginBottom};
-  margin-left: ${_ => _.marginLeft};
-  margin-right: ${_ => _.marginRight};
+  margin: ${propMap(_ => _.margin)};
+  margin-top: ${propMap(_ => _.marginTop)};
+  margin-bottom: ${propMap(_ => _.marginBottom)};
+  margin-left: ${propMap(_ => _.marginLeft)};
+  margin-right: ${propMap(_ => _.marginRight)};
   
-  padding: ${_ => _.padding};
-  padding-top: ${_ => _.paddingTop};
-  padding-bottom: ${_ => _.paddingBottom};
-  padding-left: ${_ => _.paddingLeft};
-  padding-right: ${_ => _.paddingRight};
+  padding: ${propMap(_ => _.padding)};
+  padding-top: ${propMap(_ => _.paddingTop)};
+  padding-bottom: ${propMap(_ => _.paddingBottom)};
+  padding-left: ${propMap(_ => _.paddingLeft)};
+  padding-right: ${propMap(_ => _.paddingRight)};
 
-  top: ${_ => _.top};
-  bottom: ${_ => _.bottom};
-  left: ${_ => _.left};
-  right: ${_ => _.right};
+  top: ${propMap(_ => _.top)};
+  bottom: ${propMap(_ => _.bottom)};
+  left: ${propMap(_ => _.left)};
+  right: ${propMap(_ => _.right)};
 `;
 

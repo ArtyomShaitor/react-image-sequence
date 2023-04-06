@@ -7,7 +7,16 @@ export const HeroBlock = styled.div<WithBaseComponent<{}>>`
   align-items: center;
   padding-top: 150px;
   flex-direction: column;
-  height: 100vh;
+  height: 175vh;
+  width: 100%;
+
+  ${baseComponentStyles};
+`;
+
+export const BackgroundScrollContainer = styled.div<WithBaseComponent<{}>>`
+  width: 100vw;
+  position: absolute;
+  top: 0;
 
   ${baseComponentStyles};
 `;
@@ -34,10 +43,16 @@ export const Flex = styled.div<WithBaseComponent<FlexProps>>`
   ${baseComponentStyles};
 `;
 
-export const Container = styled(Flex)`
+export const Container = styled.div<WithBaseComponent<{}>>`
   max-width: 1220px;
   width: 100%;
   margin: 0 auto;
   padding-left: 20px;
   padding-right: 20px;
+  
+  ${baseComponentStyles}
+`;
+
+export const Div = styled.div<WithBaseComponent<{}>>`
+  ${baseComponentStyles};
 `;

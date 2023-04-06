@@ -1,7 +1,7 @@
 import {Flex} from "./Layout";
 import {Text, textDefaults} from "./Text";
 import {CSSProperties} from "styled-components";
-import {useMemo} from "react";
+import {forwardRef, useMemo} from "react";
 
 interface StepProps {
   step: number;
@@ -97,7 +97,7 @@ function HSLToHex(h: any, s: any, l: any) {
 }
 
 
-export const Step = ({ title, step, body, stepColor }: StepProps) => {
+export const Step = forwardRef(({ title, step, body, stepColor }: StepProps, ref) => {
   const darkerColor = useMemo(
     () => {
       const { h } = hexToHSL(stepColor as string);
@@ -108,12 +108,15 @@ export const Step = ({ title, step, body, stepColor }: StepProps) => {
 
   return (
     <Flex
+      // @ts-ignore
+      ref={ref}
       bgColor="#1A1A1A"
       borderRadius="10px"
       padding="15px 25px 15px 20px"
       dir="row"
       columnGap="20px"
       align="center"
+      w="100%"
     >
       <Flex>
         <Flex
@@ -141,4 +144,4 @@ export const Step = ({ title, step, body, stepColor }: StepProps) => {
       </Flex>
     </Flex>
   );
-}
+});
