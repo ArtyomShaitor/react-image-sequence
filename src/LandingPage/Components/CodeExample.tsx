@@ -3,18 +3,14 @@ import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 const codeString = `import ImageSequence, { usePreloadImages } from "react-image-sequence";
 
-const getImage = index =>
-  \`http://example.com/images/\$\{index\}.jpg\`;
+const getImage = index => \`http://example.com/images/\$\{index\}.jpg\`;
 
 const App = () => {
   const containerRef = useRef();
   const \{ images \} = usePreloadImages(getImage, 1, 100);
   
   return (
-    <div
-      ref={containerRef}
-      style={{ height: '3000px' }}
-    >
+    <div ref={containerRef} style={{ height: '3000px' }}>
       <ImageSequence
         targetRef={containerRef}
         images={images}
@@ -25,11 +21,17 @@ const App = () => {
   ); 
 }`;
 
-const customStyle = { fontSize: '0.875rem', background: '#1A1A1A', borderRadius: '10px' };
+const customStyle = {
+  fontSize: '0.875rem',
+  background: '#1A1A1A',
+  borderRadius: '10px',
+  margin: 0,
+  height: '100%',
+};
 
 const STEPS_TO_LINES: Record<number, number[]> = {
-  1: [3, 4, 8, 17],
-  2: [7, 12, 13, 16],
+  1: [3, 7, 13],
+  2: [6, 11, 12, 14],
   3: [],
 }
 

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import {CSSProperties, ReactNode} from "react";
+import {CSSProperties} from "react";
 import {baseComponentStyles, WithBaseComponent} from "./BaseComponent";
 
 export const textDefaults = {
@@ -65,13 +65,14 @@ export const Text = styled.span<WithBaseComponent<TextProps>>`
   ${baseComponentStyles}
 `;
 
-export const Strong = styled(Text)`
-  font-weight: ${textDefaults.weight.bold};
+export const Strong = styled.strong`
+  color: ${textDefaults.color.bold};
+`;
+
+export const Code = styled.code`
   color: ${textDefaults.color.bold};
   font-size: inherit;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: 0 3px;
+  border-radius: 3px;
 `;
-
-export const HeroText = styled(Text)`
-  font-size: 1.3rem;
-`;
-
