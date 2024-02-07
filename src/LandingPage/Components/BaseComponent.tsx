@@ -1,9 +1,12 @@
+import { ReactElement, ReactNode, Ref } from 'react';
 import {
   css,
   CSSProperties,
 } from 'styled-components';
 
 interface BaseComponentProps {
+  children?: ReactNode;
+  ref?: Ref<any>;
   margin?: CSSProperties['margin'],
   marginTop?: CSSProperties['marginTop'],
   marginBottom?: CSSProperties['marginBottom'],

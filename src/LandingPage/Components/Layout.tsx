@@ -1,8 +1,13 @@
 import styled from 'styled-components';
-import {CSSProperties} from "react";
+import {CSSProperties, ReactElement} from "react";
 import {baseComponentStyles, WithBaseComponent} from "./BaseComponent";
 
-export const HeroBlock = styled.div<WithBaseComponent<{}>>`
+
+interface IdProps {
+  id?: string;
+}
+
+export const HeroBlock = styled.div<WithBaseComponent<IdProps>>`
   display: flex;
   align-items: center;
   padding-top: 150px;
@@ -13,7 +18,7 @@ export const HeroBlock = styled.div<WithBaseComponent<{}>>`
   ${baseComponentStyles};
 `;
 
-export const BackgroundScrollContainer = styled.div<WithBaseComponent<{}>>`
+export const BackgroundScrollContainer = styled.div<WithBaseComponent<IdProps>>`
   width: 100vw;
   position: absolute;
   top: 0;
@@ -22,6 +27,7 @@ export const BackgroundScrollContainer = styled.div<WithBaseComponent<{}>>`
 `;
 
 type FlexProps = {
+  onClick?: () => any;
   dir?: CSSProperties['flexDirection'],
   justify?: CSSProperties['justifyContent'],
   align?: CSSProperties['alignItems'],
@@ -58,7 +64,7 @@ export const Grid = styled.div<WithBaseComponent<GridProps>>`
   ${baseComponentStyles};
 `;
 
-export const Container = styled.div<WithBaseComponent<{}>>`
+export const Container = styled.div<WithBaseComponent<IdProps>>`
   max-width: 1220px;
   width: 100%;
   margin: 0 auto;
@@ -68,6 +74,6 @@ export const Container = styled.div<WithBaseComponent<{}>>`
   ${baseComponentStyles}
 `;
 
-export const Div = styled.div<WithBaseComponent<{}>>`
+export const Div = styled.div<WithBaseComponent<IdProps>>`
   ${baseComponentStyles};
 `;
