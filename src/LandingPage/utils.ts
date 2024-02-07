@@ -9,6 +9,6 @@ export const getDanceImageUrl = (index: number) =>
     .padStart(4, "0")}.jpg`;
 
 export const getDonutImageUrl = (index: number) =>
-  `/images/donut/compressed2/${index
+  `/images/donut/compressed/${index
     .toString()
     .padStart(4, "0")}.webp`;
