@@ -8,7 +8,9 @@ export const getDanceImageUrl = (index: number) =>
     .toString()
     .padStart(4, "0")}.jpg`;
 
+const { PUBLIC_URL = '' } = process.env;
+
 export const getDonutImageUrl = (index: number) =>
-  `/images/donut/compressed/${index
+  `${PUBLIC_URL}/images/donut/compressed/${index
     .toString()
     .padStart(4, "0")}.webp`;
